@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        
+        .search-box input {
+            width: 70%;
+            padding: 1rem;
+            border: none;
+            outline: none;
+            border-radius: 30px 0 0 30px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .search-box button {
+            padding: 1rem 1.5rem;
+            border: none;
+            outline: none;
+            border-radius: 0 30px 30px 0;
+            background: #4a00e0;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+        
+        .search-box button:hover {
+            background: #3600a9;
+        }
+        
+        .weather-info {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .location {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .date {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .main-temp {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+        
+        .weather-condition {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        
+        .weather-icon {
+            width: 100px;
+            height: 100px;
+            margin-right: 1rem;
+        }
+        
+        .condition-text {
+            font-size: 1.5rem;
+        }
+        
+        .details {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .detail-item {
+            flex: 1 0 30%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 15px;
+        }
+        
+        .detail-label {
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .detail-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .forecast {
+            display: flex;
+            overflow-x: auto;
+            gap: 1rem;
+            padding: 1rem 0;
+            margin-top: 2rem;
+        }
+        
+        .forecast-day {
+            flex: 0 0 auto;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 15px;
+            min-width: 100px;
+        }
+        
+        .forecast-date {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .forecast-icon {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto;
+        }
+        
+        .forecast-temp {
+            font-size: 1.2rem;
+            margin-top: 0.5rem;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .error-message {
+            display: none;
+            color: #ff6b6b;
+            text-align: center;
+            margin: 1rem 0;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .search-box input {
+                width: 60%;
+            }
+            
+            .main-temp {
+                font-size: 3rem;
+            }
+            
+            .details {
+                flex-direction: column;
+            }
+            
+            .detail-item {
+                flex: 1 0 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="text-align: center; margin-bottom: 2rem;">Weather Forecast</h1>
+        
+        <div class="search-box">
+            <input type="text" id="location-input" placeholder="Enter city or location">
+            <button id="search-btn">Search</button>
+        </div>
+        
+        <div id="error-message" class="error-message">
+            Location not found. Please try a different location.
+        </div>
+        
+        <div id="loading" class="loading">
+            <p>Loading weather data...</p>
+        </div>
+        
+        <div id="weather-container" style="display: none;">
+            <div class="weather-info">
+                <div class="location" id="location">New York, US</div>
+                <div class="date" id="date">Monday, 23 March 2025</div>
+                
+                <div class="main-temp" id="temperature">25°C</div>
+                
+                <div class="weather-condition">
+                    <img id="weather-icon" src="/api/placeholder/100/100" alt="Weather Icon" class="weather-icon">
+                    <div class="condition-text" id="condition">Sunny</div>
+                </div>
+                
+                <div class="details">
+                    <div class="detail-item">
+                        <div class="detail-label">Feels Like</div>
+                        <div class="detail-value" id="feels-like">27°C</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Humidity</div>
+                        <div class="detail-value" id="humidity">65%</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Wind</div>
+                        <div class="detail-value" id="wind">12 km/h</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Pressure</div>
+                        <div class="detail-value" id="pressure">1015 hPa</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Visibility</div>
+                        <div class="detail-value" id="visibility">10 km</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">UV Index</div>
+                        <div class="detail-value" id="uv-index">3</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="forecast" id="forecast">
+               
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const locationInput = document.getElementById('location-input');
+            const searchBtn = document.getElementById('search-btn');
+            const weatherContainer = document.getElementById('weather-container');
+            const loading = document.getElementById('loading');
+            const errorMessage = document.getElementById('error-message');
+            
+            
+            const apiKey = ''; // Your API key
+            
+            searchBtn.addEventListener('click', function() {
+                fetchWeather();
+            });
+            
+            locationInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    fetchWeather();
+                }
+            });
+            
+            function fetchWeather() {
+                const location = locationInput.value.trim();
+                
+                if (!location) return;
+                
+              
+                loading.style.display = 'block';
+                weatherContainer.style.display = 'none';
+                errorMessage.style.display = 'none';
+                
+
+                fetch(`https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${location}&days=5&aqi=no&alerts=no`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Location not found or API error');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        displayWeatherData(data);
+                        loading.style.display = 'none';
+                        weatherContainer.style.display = 'block';
+                    })
+                    .catch(error => {
+                        console.error('Error fetching weather data:', error);
+                        showError();
+                        loading.style.display = 'none';
+                    });
+            }
+            
+            function displayWeatherData(data) {
+         
+                document.getElementById('location').textContent = `${data.location.name}, ${data.location.country}`;
+                const date = new Date(data.location.localtime);
+                const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+                document.getElementById('date').textContent = date.toLocaleDateString('en-US', options);
+                
+            
+                document.getElementById('temperature').textContent = `${data.current.temp_c}°C`;
+                document.getElementById('condition').textContent = data.current.condition.text;
+                
+             
+                if (data.current.condition.icon) {
+                   
+                    document.getElementById('weather-icon').src = `https:${data.current.condition.icon}`;
+                } else {
+                    document.getElementById('weather-icon').src = '/api/placeholder/100/100';
+                }
+                
+               
+                document.getElementById('feels-like').textContent = `${data.current.feelslike_c}°C`;
+                document.getElementById('humidity').textContent = `${data.current.humidity}%`;
+                document.getElementById('wind').textContent = `${data.current.wind_kph} km/h`;
+                document.getElementById('pressure').textContent = `${data.current.pressure_mb} hPa`;
+                document.getElementById('visibility').textContent = `${data.current.vis_km} km`;
+                document.getElementById('uv-index').textContent = data.current.uv;
+                
+               
+                const forecastContainer = document.getElementById('forecast');
+                forecastContainer.innerHTML = '';
+                
+                if (data.forecast && data.forecast.forecastday) {
+                    data.forecast.forecastday.forEach(day => {
+                        const date = new Date(day.date);
+                        const formattedDate = date.toLocaleDateString('en-US', 
+                            { weekday: 'short', day: 'numeric' });
+                        
+                        const dayElement = document.createElement('div');
+                        dayElement.className = 'forecast-day';
+                        
+                        dayElement.innerHTML = `
+                            <div class="forecast-date">${formattedDate}</div>
+                            <img src="${day.day.condition.icon ? 'https:' + day.day.condition.icon : '/api/placeholder/50/50'}" 
+                                 alt="${day.day.condition.text}" class="forecast-icon">
+                            <div class="forecast-temp">${day.day.avgtemp_c}°C</div>
+                        `;
+                        
+                        forecastContainer.appendChild(dayElement);
+                    });
+                }
+            }
+            
+            function showError() {
+                errorMessage.style.display = 'block';
+            }
+            
+        
+        });
+    </script>
+</body>
+</html>
